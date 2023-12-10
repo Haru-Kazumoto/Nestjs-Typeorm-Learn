@@ -12,7 +12,9 @@ import {
     Req,
     DefaultValuePipe,
     Put,
-    Delete
+    Delete,
+    Inject,
+    UseGuards
 } from '@nestjs/common';
 import { UserCreateDto } from './dto/user.dto';
 import { UserService } from './user.service';
@@ -21,17 +23,19 @@ import { ResponseHttp } from 'src/utils/response.http.utils';
 import { User } from './user.entity';
 import { Pagination } from 'nestjs-typeorm-paginate/dist/pagination';
 import { IPaginationOptions } from 'nestjs-typeorm-paginate';
+import { AuthenticatedGuard } from '../auth/guards/authenticated.guard';
 
 @Controller('user')
 export class UserController {
 
     constructor(
-        private readonly userService: UserService,
-        private readonly response: ResponseHttp
+        @Inject('USER_SERVICE') private readonly userService: UserService,
+        @Inject('RESPONSE_HTTP') private readonly response: ResponseHttp
     ){}
 
-    @Post('create')
     @UsePipes(new ValidationPipe({transform: true}))
+    @UseGuards(AuthenticatedGuard)
+    @Post('create')
     public async createUser(@Body() dto: UserCreateDto, @Res() res: Response){
         const data = await this.userService.create(dto);
         const response = this.response.createResponse(HttpStatus.OK,data);
@@ -39,6 +43,7 @@ export class UserController {
         return this.response.sendResponse(res, response);
     }
 
+    @UseGuards(AuthenticatedGuard)
     @Get('index')
     public async index(
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
@@ -55,6 +60,7 @@ export class UserController {
     }
 
     @Put('update')
+    @UseGuards(AuthenticatedGuard)
     public async updateUser(@Query('id', ParseIntPipe) id: number,@Body() dto: UserCreateDto,@Res() res: Response){
         const instance = await this.userService.update(id, dto);
         const response = this.response.createResponse(HttpStatus.OK, instance);
@@ -63,6 +69,7 @@ export class UserController {
     }
 
     @Delete('delete')
+    @UseGuards(AuthenticatedGuard)
     public async deleteUser(@Query('id', ParseIntPipe) id: number){
         await this.userService.delete(id);
     }

@@ -1,6 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { Response } from "express";
-import { ResponseInterface } from "src/interfaces/response.interface";
+
+export interface ResponseInterface{
+    statusCode: number;
+    data: any;
+}
 
 @Injectable()
 export class ResponseHttp{

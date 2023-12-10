@@ -1,21 +1,20 @@
-import { BadRequestException, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Inject, Injectable } from '@nestjs/common';
 import { User } from './user.entity';
 import { UserCreateDto } from './dto/user.dto';
-import { DuplicateDataException } from 'src/exception/duplicate_data.exception';
-import { DataSource, Repository} from 'typeorm';
+import { DuplicateDataException } from '../../exception/duplicate_data.exception';
 import * as bcrypt from "bcrypt";
 import { IUserService } from './user.service.interface';
 import { IPaginationOptions, IPaginationMeta } from 'nestjs-typeorm-paginate/dist/interfaces';
 import { Pagination, paginate } from 'nestjs-typeorm-paginate';
 import { Transactional } from 'typeorm-transactional/dist/decorators/transactional';
-import { DataNotFoundException } from 'src/exception/data_not_found.exception';
+import { DataNotFoundException } from '../../exception/data_not_found.exception';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService implements IUserService{
 
     constructor(
-        @InjectRepository(User) private readonly userRepository: Repository<User>
+        @Inject('USER_REPOSITORY') private readonly userRepository: UserRepository
     ){}
     
     @Transactional()
@@ -62,6 +61,22 @@ export class UserService implements IUserService{
         if(!data) throw new DataNotFoundException("ID not found", 404);
 
         await this.userRepository.remove(data);
+    }
+
+    public async findByUsername(username: string): Promise<User> {
+        return await this.userRepository.findOneOrFail({where : {username: username}}).then(
+            () => {
+                throw new DataNotFoundException("Username not found.", 400);
+            }
+        );
+    }
+
+    public async findById(id: number): Promise<User> {
+        return await this.userRepository.findOneOrFail({
+            where: {
+                id: id
+            }
+        }).then(() => { throw new DataNotFoundException("Id not found.", 400) });
     }
 
     // Utils method

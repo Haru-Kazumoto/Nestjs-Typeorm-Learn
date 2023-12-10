@@ -1,20 +1,19 @@
 import { PostRepository } from './post.repository';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { IPostService } from './post.service.interface';
 import { PostCreateDto } from './dto/post.dto';
 import { Post } from './post.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from 'test';
-import { DataNotFoundException } from 'src/exception/data_not_found.exception';
+import { DataNotFoundException } from '../../exception/data_not_found.exception';
 import { Transactional } from 'typeorm-transactional';
+import { User } from '../user/user.entity';
+import { UserRepository } from '../user/user.repository';
 
 @Injectable()
 export class PostService implements IPostService{
 
     constructor(
-        private readonly postRepository: PostRepository,
-        @InjectRepository(User) private readonly userRepository: Repository<User>
+        @Inject('POST_REPOSITORY') private readonly postRepository: PostRepository,
+        @Inject('USER_REPOSITORY') private readonly userRepository: UserRepository
     ){}
 
     @Transactional()

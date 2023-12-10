@@ -1,7 +1,7 @@
-import { Timestamps } from "src/utils/base.timestamps.utils";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Post } from "../post/post.entity";
 import { Exclude, instanceToPlain } from "class-transformer";
+import { Timestamps } from "../../utils/base.timestamps.utils";
 
 @Entity({name: "users"})
 export class User extends Timestamps{

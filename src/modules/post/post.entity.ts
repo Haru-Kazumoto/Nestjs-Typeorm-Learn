@@ -1,7 +1,8 @@
-import { Timestamps } from "src/utils/base.timestamps.utils";
+
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "../user/user.entity";
 import { Exclude, classToPlain, instanceToPlain } from "class-transformer";
+import { Timestamps } from "../../utils/base.timestamps.utils";
 
 @Entity({name: 'posts'})
 export class Post extends Timestamps{
@@ -24,5 +25,4 @@ export class Post extends Timestamps{
     toJSON(){
         return instanceToPlain(this);
     }
-
 }

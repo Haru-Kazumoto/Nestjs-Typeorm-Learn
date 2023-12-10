@@ -7,4 +7,6 @@ export interface IUserService {
     index(option: IPaginationOptions): Promise<Pagination<User>>;
     update(id: number, body: UserCreateDto): Promise<User>;
     delete(id: number): any;
+    findByUsername(username: string): Promise<User>;
+    findById(id: number): Promise<User>;
 }
