@@ -9,12 +9,15 @@ import { Pagination, paginate } from 'nestjs-typeorm-paginate';
 import { Transactional } from 'typeorm-transactional/dist/decorators/transactional';
 import { DataNotFoundException } from '../../exception/data_not_found.exception';
 import { UserRepository } from './user.repository';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService implements IUserService{
 
     constructor(
         @Inject('USER_REPOSITORY') private readonly userRepository: UserRepository
+        // @InjectRepository(User) private readonly userRepository: Repository<User>
     ){}
     
     @Transactional()
@@ -41,8 +44,8 @@ export class UserService implements IUserService{
 
     @Transactional()
     public async update(id: number, body: UserCreateDto): Promise<User> {
-        const user = await this.userRepository.findOne({where: {id}});
-        if(!user) throw new DataNotFoundException("Id not found", 404);
+        const user = await this.userRepository.findOne({where: {id: id}});
+        if(!user) throw new DataNotFoundException("Id user not found", 404);
 
         await this.checkIfFieldExists('username', body.username, "Username already exists");
         await this.checkIfFieldExists('email', body.email, "Email already exists");
@@ -59,24 +62,22 @@ export class UserService implements IUserService{
     public async delete(id: number) {
         const data = await this.userRepository.findOne({where: {id: id}});
         if(!data) throw new DataNotFoundException("ID not found", 404);
-
+        
         await this.userRepository.remove(data);
     }
 
     public async findByUsername(username: string): Promise<User> {
-        return await this.userRepository.findOneOrFail({where : {username: username}}).then(
-            () => {
-                throw new DataNotFoundException("Username not found.", 400);
-            }
-        );
+        const user:User = await this.userRepository.findUserByUsername(username);
+
+        if(!user) throw new DataNotFoundException("Username not found",400);
+
+        return user;
     }
 
     public async findById(id: number): Promise<User> {
-        return await this.userRepository.findOneOrFail({
-            where: {
-                id: id
-            }
-        }).then(() => { throw new DataNotFoundException("Id not found.", 400) });
+        return await this.userRepository.findById(id).then(
+            () => { throw new DataNotFoundException("Id not found.", 400) }
+        );
     }
 
     // Utils method
@@ -93,6 +94,5 @@ export class UserService implements IUserService{
         if(data){
             throw new DataNotFoundException(errorMessage, 404);
         }
-    }
-    
+    }    
 }

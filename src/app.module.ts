@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { UserModule } from './modules/user/user.module';
-import { DatabaseModule } from './config/database.module';
+import { DatabaseModule } from './config/database.config.module';
 import { ResponseHttp } from './utils/response.http.utils';
 import { ConfigModule } from '@nestjs/config';
 import { PostModule } from './modules/post/post.module';

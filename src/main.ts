@@ -1,49 +1,45 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
-import * as dotenv from "dotenv";
 import { initializeTransactionalContext } from 'typeorm-transactional/dist/common';
-import { ValidationPipe } from '@nestjs/common/pipes';
+import { TypeormStore } from 'connect-typeorm';
+import { DataSource } from 'typeorm';
+import { Session } from './modules/session/session.entity';
+import config, { passportConfig, pipesRegistrar } from "./config/security.config";
 import * as session from 'express-session';
-import * as passport from 'passport';
+import * as dotenv from "dotenv";
 
 async function bootstrap() {
-  dotenv.config(); //Env config
-  initializeTransactionalContext(); //Transactional context
+  dotenv.config();
+  initializeTransactionalContext();
 
-  const time = 24 * 60 * 60; // 1 day in seconds
-  const app = await NestFactory.create(AppModule, {
-    cors: {
-      origin: 'http://localhost:8080',
-      credentials: true
-    }
-  });
+  const app = await NestFactory.create(AppModule, {cors: config.corsOption});
+  const sessionRepository = app.get(DataSource).getRepository(Session);
 
-  app.setGlobalPrefix(`/api/v${process.env.APP_VERSION}`);
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-    }),
-  );
+  app.setGlobalPrefix(config.globalPrefix);
   app.use(
     session(
       {
-        name: process.env.COOKIE_NAME,
-        secret: process.env.COOKIE_SECRET_KEY,
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-          maxAge: time * 1000
-        }
+        name: config.cookieOptions.name,
+        secret: config.cookieOptions.secret,
+        resave: config.cookieOptions.resave,
+        saveUninitialized: config.cookieOptions.saveUninitialized,
+        cookie: { maxAge: config.cookieOptions.maxAge },
+        store: new TypeormStore().connect(sessionRepository)
       }
     )
   );
-  app.use(passport.initialize());
-  app.use(passport.session())
   
-  await app.listen(process.env.APP_PORT);
+  passportConfig(app);
+  pipesRegistrar(app);
   
-  Logger.log(`Nest running on port ${process.env.APP_PORT}`, "Application")
+  try{
+    await app.listen(process.env.APP_PORT);
+    Logger.log(`Nest running on port ${process.env.APP_PORT}`, "Application")
+  } catch(error) {
+    Logger.log(`Error starting Nest application: ${error}`, "","Application", false);
+    process.exit(1);
+  }
 }
 
 bootstrap();

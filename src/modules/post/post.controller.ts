@@ -6,7 +6,7 @@ import { HttpStatus } from '@nestjs/common/enums';
 import { Get, Inject, Put, Query, Res, UseGuards } from '@nestjs/common/decorators';
 import { Response } from 'express';
 import { ParseIntPipe } from '@nestjs/common/pipes';
-import { AuthenticatedGuard } from '../auth/guards/authenticated.guard';
+import { AuthenticatedGuard } from '../guards/authenticated.guard';
 
 @Controller('post')
 export class PostController {
@@ -16,7 +16,7 @@ export class PostController {
         @Inject('RESPONSE_HTTP') private response: ResponseHttp
     ){}
 
-    @UseGuards(AuthenticatedGuard)
+    // @UseGuards(AuthenticatedGuard)
     @Post('create')
     async createPost(@Body() dto: PostCreateDto, @Res() response: Response){
         const res = await this.response.createResponse(

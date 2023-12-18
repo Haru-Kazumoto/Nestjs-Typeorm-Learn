@@ -23,7 +23,7 @@ import { ResponseHttp } from 'src/utils/response.http.utils';
 import { User } from './user.entity';
 import { Pagination } from 'nestjs-typeorm-paginate/dist/pagination';
 import { IPaginationOptions } from 'nestjs-typeorm-paginate';
-import { AuthenticatedGuard } from '../auth/guards/authenticated.guard';
+import { AuthenticatedGuard } from '../guards/authenticated.guard';
 
 @Controller('user')
 export class UserController {
@@ -34,7 +34,7 @@ export class UserController {
     ){}
 
     @UsePipes(new ValidationPipe({transform: true}))
-    @UseGuards(AuthenticatedGuard)
+    // @UseGuards(AuthenticatedGuard)
     @Post('create')
     public async createUser(@Body() dto: UserCreateDto, @Res() res: Response){
         const data = await this.userService.create(dto);
@@ -57,6 +57,11 @@ export class UserController {
         };
 
         return await this.userService.index(options);
+    }
+
+    @Get('find-by-username')
+    public async findByUsername(@Query('username') username: string){
+        return this.userService.findByUsername(username);
     }
 
     @Put('update')
