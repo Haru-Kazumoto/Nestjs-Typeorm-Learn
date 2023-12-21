@@ -6,19 +6,18 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UserService } from '../user/user.service';
 import { UserRepository } from '../user/user.repository';
-import { PassportModule } from '@nestjs/passport';
-import { LocalStrategy } from './utils/local.strategy';
-import { SessionSerializer } from './utils/session.serializer';
+import { LocalStrategy } from '../../security/local.strategy';
+import { SessionSerializer } from '../../security/session.serializer';
 import { UserModule } from '../user/user.module';
+import { RoleModule } from '../role/role.module';
+import { RoleRepository } from '../role/role.repository';
 
 @Module(
     {
         imports: [
             TypeOrmModule.forFeature([User]),
-            PassportModule.register({
-                session: true
-            }),
-            UserModule
+            UserModule,
+            RoleModule
         ],
         providers: [
             {
@@ -40,6 +39,10 @@ import { UserModule } from '../user/user.module';
             {
                 provide: 'SESSION_SERIALIZER',
                 useClass: SessionSerializer
+            },
+            {
+                provide: "ROLE_REPOSITORY",
+                useClass: RoleRepository
             }
         ],
         controllers: [AuthController],

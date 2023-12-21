@@ -18,7 +18,7 @@ export class SessionSerializer extends PassportSerializer {
         const userDB = await this.userService.findByUsername(payload.username);
         if(!userDB) {
             return done(
-                `Could not deserialize user: user with ${payload.username} coundn't be found.`,
+                `Could not deserialize user: user with ${payload.username} couldn't be found.`,
                 null
             );
         }

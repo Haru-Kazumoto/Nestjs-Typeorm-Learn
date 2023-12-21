@@ -12,9 +12,11 @@ export class PostRepository extends Repository<Post>{
     }
 
     public async findAllPostByUserId(userId: number): Promise<Post[]>{
-        return this.createQueryBuilder('post')
-            .where('post.user_id = :userId', {userId: userId})
-            .getMany();
+        return this.find({
+            where: {
+                user_id: userId
+            }
+        });
     }
 
 }

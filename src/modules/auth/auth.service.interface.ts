@@ -1,8 +1,11 @@
 import { Request } from "express";
-import { Session } from "express-session";
+import { Session, SessionData } from "express-session";
+import { AuthRequest } from "./auth.dto";
+import { User } from "../user/user.entity";
 
 export interface IAuthService {
     validateUser(username: string, password: string): Promise<any>;
-    login(session: Session): Promise<any>;
+    register(requset: AuthRequest): Promise<any>;
+    login(request: Request): Promise<any>;
     logout(request: Request): Promise<any>;
 }

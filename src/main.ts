@@ -25,7 +25,10 @@ async function bootstrap() {
         resave: config.cookieOptions.resave,
         saveUninitialized: config.cookieOptions.saveUninitialized,
         cookie: { maxAge: config.cookieOptions.maxAge },
-        store: new TypeormStore().connect(sessionRepository)
+        store: new TypeormStore({
+          cleanupLimit: config.cookieOptions.store.cleanupLimit,
+          ttl: config.cookieOptions.store.ttl
+        }).connect(sessionRepository)
       }
     )
   );

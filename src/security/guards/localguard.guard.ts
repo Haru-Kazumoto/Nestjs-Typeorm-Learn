@@ -1,8 +1,8 @@
-import { ExecutionContext, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
-export class LocalGuard extends AuthGuard('local') {
+export class LocalGuard extends AuthGuard('local') implements CanActivate {
   constructor(){
     super();
   }

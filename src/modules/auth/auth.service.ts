@@ -1,31 +1,40 @@
 import { UserService } from 'src/modules/user/user.service';
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { IAuthService } from './auth.service.interface';
 import { User } from '../user/user.entity';
 import * as bcrypt from "bcrypt";
-import { BadCredentialException } from 'src/exception/bad_credential.exception';
 import { Request } from 'express';
-import { Session } from 'express-session';
+import { AuthRequest } from './auth.dto';
+import { Transactional } from 'typeorm-transactional';
+import { UserRepository } from '../user/user.repository';
+import { comparePassword } from 'src/utils/password.utils';
+import { RoleRepository } from '../role/role.repository';
+import { DataNotFoundException } from 'src/exception/data_not_found.exception';
+import { SessionData } from 'express-session';
 
 @Injectable()
 export class AuthService implements IAuthService { 
-    constructor(@Inject('USER_SERVICE') private userService: UserService){}
+    constructor(
+        @Inject('USER_SERVICE') private userService: UserService,
+        @Inject('USER_REPOSITORY') private readonly userRepsitory: UserRepository,
+        @Inject('ROLE_REPOSITORY') private readonly roleRepository: RoleRepository
+    ){}
 
     public async validateUser(username: string, password: string): Promise<any> {
         const user: User = await this.userService.findByUsername(username);
-        const isPasswordMatch: boolean = await this.comparePassword(password, user.password);
+        const isPasswordMatch: boolean = await comparePassword(password, user.password);
 
         if(user && isPasswordMatch){
-            const {username, password, ...rest} = user;
+            const {password, ...rest} = user;
             return rest;
         }
 
-        throw new BadCredentialException();
+        throw new ForbiddenException();
     }
 
-    public async login(session: Session): Promise<any> {
+    public async login(request: Request): Promise<any> {
         return {
-            message: `Hello, ${session}`,
+            message: `Hello, ${request.body.username}`,
             statusCode: HttpStatus.OK
         };
     }
@@ -39,7 +48,21 @@ export class AuthService implements IAuthService {
         });
     }
 
-    public async comparePassword(password: string, hashedPassword: string): Promise<boolean>{
-        return await bcrypt.compare(password, hashedPassword);
+    @Transactional()
+    public async register(request: AuthRequest): Promise<any> {
+        await this.userService.checkIfFieldExists('username', request.username, "Username already exists");
+        await this.userService.checkIfFieldExists('email', request.email, "Email already exists");
+
+        const role = await this.roleRepository.findRoleById(request.role_id);
+
+        if(!role) throw new DataNotFoundException("Role id not found.", 400);
+
+        const createUser = this.userRepsitory.create({
+            ...request,
+            role: role,
+            password: await bcrypt.hash(request.password, 10),
+        });
+
+        await this.userRepsitory.save(createUser); //ini ada error nih.
     }
 }

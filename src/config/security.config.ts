@@ -14,7 +14,11 @@ export default {
         secret: process.env.COOKIE_SECRET_KEY,
         maxAge: COOKIE_MAX_AGE,
         resave: false,
-        saveUninitialized: false
+        saveUninitialized: false,
+        store:{
+            cleanupLimit: 2,
+            ttl: 86400,
+        }
     },
     globalPrefix: PREFIX_API
 };

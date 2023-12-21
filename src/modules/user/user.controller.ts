@@ -14,7 +14,9 @@ import {
     Put,
     Delete,
     Inject,
-    UseGuards
+    UseGuards,
+    SetMetadata,
+    Session
 } from '@nestjs/common';
 import { UserCreateDto } from './dto/user.dto';
 import { UserService } from './user.service';
@@ -23,8 +25,12 @@ import { ResponseHttp } from 'src/utils/response.http.utils';
 import { User } from './user.entity';
 import { Pagination } from 'nestjs-typeorm-paginate/dist/pagination';
 import { IPaginationOptions } from 'nestjs-typeorm-paginate';
-import { AuthenticatedGuard } from '../guards/authenticated.guard';
+import { AuthenticatedGuard } from '../../security/guards/authenticated.guard';
+import { RolesGuard } from 'src/security/guards/roles.guard';
+import { Roles } from 'src/security/decorator/roles.decorator';
+import { SessionData as ExpressSession } from 'express-session';
 
+// @Roles('ADMIN')
 @Controller('user')
 export class UserController {
 
@@ -34,7 +40,7 @@ export class UserController {
     ){}
 
     @UsePipes(new ValidationPipe({transform: true}))
-    // @UseGuards(AuthenticatedGuard)
+    @UseGuards(AuthenticatedGuard)
     @Post('create')
     public async createUser(@Body() dto: UserCreateDto, @Res() res: Response){
         const data = await this.userService.create(dto);
@@ -43,7 +49,7 @@ export class UserController {
         return this.response.sendResponse(res, response);
     }
 
-    @UseGuards(AuthenticatedGuard)
+    @UseGuards(AuthenticatedGuard, RolesGuard)
     @Get('index')
     public async index(
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
@@ -59,6 +65,7 @@ export class UserController {
         return await this.userService.index(options);
     }
 
+    @UseGuards(AuthenticatedGuard)
     @Get('find-by-username')
     public async findByUsername(@Query('username') username: string){
         return this.userService.findByUsername(username);
@@ -77,5 +84,17 @@ export class UserController {
     @UseGuards(AuthenticatedGuard)
     public async deleteUser(@Query('id', ParseIntPipe) id: number){
         await this.userService.delete(id);
+    }
+
+    @Get('get-user')
+    getUser(@Req() req: Request){
+        console.log(req.user);
+    }
+
+    @UseGuards(AuthenticatedGuard, RolesGuard)
+    @Roles('USER')
+    @Get('hello')
+    getHello(@Session() session: ExpressSession): string{
+        return `Congrat's now you've been authenticated by your own role`;
     }
 } 

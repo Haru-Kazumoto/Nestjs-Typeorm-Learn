@@ -9,15 +9,12 @@ import { Pagination, paginate } from 'nestjs-typeorm-paginate';
 import { Transactional } from 'typeorm-transactional/dist/decorators/transactional';
 import { DataNotFoundException } from '../../exception/data_not_found.exception';
 import { UserRepository } from './user.repository';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService implements IUserService{
 
     constructor(
         @Inject('USER_REPOSITORY') private readonly userRepository: UserRepository
-        // @InjectRepository(User) private readonly userRepository: Repository<User>
     ){}
     
     @Transactional()
@@ -75,8 +72,15 @@ export class UserService implements IUserService{
     }
 
     public async findById(id: number): Promise<User> {
-        return await this.userRepository.findById(id).then(
-            () => { throw new DataNotFoundException("Id not found.", 400) }
+        const user =  await this.userRepository.findById(id);
+        if(!user) throw new DataNotFoundException("Id user not found.", 400);
+
+        return user;
+    }
+
+    public async findUserById(userId: number): Promise<User>{
+        return await this.userRepository.findUserById(userId).then(
+            () => { throw new DataNotFoundException("User not found", 400); }
         );
     }
 
