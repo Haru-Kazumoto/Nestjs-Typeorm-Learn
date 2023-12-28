@@ -1,7 +1,6 @@
-
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "../user/user.entity";
-import { Exclude, classToPlain, instanceToPlain } from "class-transformer";
+import { Exclude, instanceToPlain } from "class-transformer";
 import { Timestamps } from "../../utils/base.timestamps.utils";
 
 @Entity({name: 'posts'})

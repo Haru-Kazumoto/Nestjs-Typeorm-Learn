@@ -5,7 +5,7 @@ import { Roles } from './roles.entity';
 import { RoleRepository } from './role.repository';
 import { Transactional } from 'typeorm-transactional';
 import { AccessRolesRepository } from '../access_roles/roles.access.repository';
-import { DuplicateDataException } from 'src/exception/duplicate_data.exception';
+import { DuplicateDataException } from 'src/exceptions/duplicate_data.exception';
 import { AccessPaths } from '../access_roles/roles.access.entity';
 
 @Injectable()

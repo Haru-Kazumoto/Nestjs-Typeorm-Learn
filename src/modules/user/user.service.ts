@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { User } from './user.entity';
 import { UserCreateDto } from './dto/user.dto';
-import { DuplicateDataException } from '../../exception/duplicate_data.exception';
+import { DuplicateDataException } from '../../exceptions/duplicate_data.exception';
 import * as bcrypt from "bcrypt";
 import { IUserService } from './user.service.interface';
 import { IPaginationOptions, IPaginationMeta } from 'nestjs-typeorm-paginate/dist/interfaces';
 import { Pagination, paginate } from 'nestjs-typeorm-paginate';
 import { Transactional } from 'typeorm-transactional/dist/decorators/transactional';
-import { DataNotFoundException } from '../../exception/data_not_found.exception';
+import { DataNotFoundException } from '../../exceptions/data_not_found.exception';
 import { UserRepository } from './user.repository';
 
 @Injectable()
@@ -16,20 +16,6 @@ export class UserService implements IUserService{
     constructor(
         @Inject('USER_REPOSITORY') private readonly userRepository: UserRepository
     ){}
-    
-    @Transactional()
-    public async create(body: UserCreateDto): Promise<User> {
-
-        await this.checkIfFieldExists('username', body.username, "Username already exists");
-        await this.checkIfFieldExists('email', body.email, "Email already exists");
-
-        const createInstance = this.userRepository.create({
-            ...body,
-            password: await bcrypt.hash(body.password, 10)
-        });
-
-        return this.userRepository.save(createInstance);
-    }
 
     public async index(option: IPaginationOptions<IPaginationMeta>): Promise<Pagination<User>> {
         const queryBuilder = this.userRepository.createQueryBuilder('user')

@@ -1,6 +1,4 @@
-import { Transform } from "class-transformer";
 import { IsEnum, IsNumber, IsOptional } from "class-validator";
-import { SortOrder } from "src/enums/sort.enums";
 
 export class PaginateFilter {
 
@@ -12,8 +10,4 @@ export class PaginateFilter {
 
     @IsOptional()
     public orderBy?: number;
-
-    @IsOptional()
-    @IsEnum(SortOrder)
-    public sortOrder?: SortOrder = SortOrder.ASC;
 }

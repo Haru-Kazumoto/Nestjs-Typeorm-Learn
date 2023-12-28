@@ -5,7 +5,7 @@ import { Request, Response } from 'express';
 export class LoggingMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: () => void) {
 
-    Logger.log(`Incoming request [${req.method}] - [${req.path}] - ${new Date()}`, "Request HTTP")
+    Logger.log(`Incoming request [${req.method}] - [${req.originalUrl}] - ${new Date()}`, "Request HTTP")
 
     next();
   }

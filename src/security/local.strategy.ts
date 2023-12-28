@@ -6,7 +6,7 @@ import { AuthRequest } from "../modules/interfaces/auth.request.interface";
 import { RoleRepository } from "src/modules/role/role.repository";
 import { User } from "src/modules/user/user.entity";
 import { Roles } from "src/modules/role/roles.entity";
-import { DataNotFoundException } from "src/exception/data_not_found.exception";
+import { DataNotFoundException } from "src/exceptions/data_not_found.exception";
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {

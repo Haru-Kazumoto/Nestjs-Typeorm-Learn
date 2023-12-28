@@ -9,7 +9,7 @@ import { Transactional } from 'typeorm-transactional';
 import { UserRepository } from '../user/user.repository';
 import { comparePassword } from 'src/utils/password.utils';
 import { RoleRepository } from '../role/role.repository';
-import { DataNotFoundException } from 'src/exception/data_not_found.exception';
+import { DataNotFoundException } from 'src/exceptions/data_not_found.exception';
 import { SessionData } from 'express-session';
 
 @Injectable()

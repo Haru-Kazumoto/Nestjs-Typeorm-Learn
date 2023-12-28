@@ -10,7 +10,13 @@ export class AccessPaths {
     @Column()
     public path: string;
 
-    @ManyToOne(() => Roles, role => role.access_path)
+    @ManyToOne(
+        () => Roles, 
+        role => role.access_path,
+        {
+            lazy: true
+        }
+    )
     public role: Roles;
 
 }

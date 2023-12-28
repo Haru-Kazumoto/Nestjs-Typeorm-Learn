@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { IPostService } from './post.service.interface';
 import { PostCreateDto } from './dto/post.dto';
 import { Post } from './post.entity';
-import { DataNotFoundException } from '../../exception/data_not_found.exception';
+import { DataNotFoundException } from '../../exceptions/data_not_found.exception';
 import { Transactional } from 'typeorm-transactional';
 import { User } from '../user/user.entity';
 import { UserRepository } from '../user/user.repository';

@@ -3,10 +3,7 @@ import {
     Controller, 
     Get, 
     HttpStatus, 
-    Post, 
     Res, 
-    UsePipes, 
-    ValidationPipe, 
     Query, 
     ParseIntPipe,
     Req,
@@ -15,7 +12,6 @@ import {
     Delete,
     Inject,
     UseGuards,
-    SetMetadata,
     Session
 } from '@nestjs/common';
 import { UserCreateDto } from './dto/user.dto';
@@ -30,7 +26,7 @@ import { RolesGuard } from 'src/security/guards/roles.guard';
 import { Roles } from 'src/security/decorator/roles.decorator';
 import { SessionData as ExpressSession } from 'express-session';
 
-// @Roles('ADMIN')
+@Roles('ADMIN')
 @Controller('user')
 export class UserController {
 
@@ -38,16 +34,6 @@ export class UserController {
         @Inject('USER_SERVICE') private readonly userService: UserService,
         @Inject('RESPONSE_HTTP') private readonly response: ResponseHttp
     ){}
-
-    @UsePipes(new ValidationPipe({transform: true}))
-    @UseGuards(AuthenticatedGuard)
-    @Post('create')
-    public async createUser(@Body() dto: UserCreateDto, @Res() res: Response){
-        const data = await this.userService.create(dto);
-        const response = this.response.createResponse(HttpStatus.OK,data);
-
-        return this.response.sendResponse(res, response);
-    }
 
     @UseGuards(AuthenticatedGuard, RolesGuard)
     @Get('index')
@@ -92,7 +78,6 @@ export class UserController {
     }
 
     @UseGuards(AuthenticatedGuard, RolesGuard)
-    @Roles('USER')
     @Get('hello')
     getHello(@Session() session: ExpressSession): string{
         return `Congrat's now you've been authenticated by your own role`;

@@ -14,7 +14,15 @@ export class Roles {
     @Column()
     public description: string;
 
-    @OneToMany(() => AccessPaths, accessPaths => accessPaths.role)
+    @OneToMany(
+        () => AccessPaths, 
+        accessPaths => accessPaths.role,
+        {
+            cascade: true,
+            orphanedRowAction: "delete",
+            eager: true
+        }
+    )
     public access_path: AccessPaths[];
 
     @OneToOne(() => User, (user) => user.role)
